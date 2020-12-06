@@ -1,10 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/citiz/source/repos/SQLAlchemy-Challenge/Resources/hawaii.sqlite" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="150"/><column_width id="3" width="1828"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,11:mainmeasurement"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="measurement" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="44"/><column index="2" value="87"/><column index="3" value="73"/><column index="4" value="44"/><column index="5" value="44"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1">SELECT max(date) FROM Measurement;
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/citiz/source/repos/SQLAlchemy-Challenge/Resources/hawaii.sqlite" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="150"/><column_width id="3" width="2351"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,11:mainmeasurement"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="measurement" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="61"/><column index="2" value="87"/><column index="3" value="73"/><column index="4" value="61"/><column index="5" value="61"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="Dates">SELECT max(date) FROM Measurement;
 
-SELECT date FROM Measurement WHERE date &gt; '2010-01-04';
+SELECT date, prcp
+FROM station_measurements
+WHERE date &gt; 
+	(SELECT  DATE(MAX(date), '-1 year') 
+	FROM Measurement) ;
 
-SELECT  DATE(MAX(date), '-1 year') FROM Measurement ;
+SELECT
+(SELECT avg(temp) as Average_Temp 
+FROM station_measurements
+WHERE strftime('%m',date) = '06' ) [June Average],
 
-SELECT  strftime('%m',date)  FROM Measurement ;</sql><sql name="SQL 2">DROP VIEW IF EXISTS station_measurements;
+(SELECT avg(temp) as Average_Temp
+FROM station_measurements
+WHERE strftime('%m',date) = '12') [December Average];
+
+SELECT strftime('%d',date) as day, strftime('%m',date) as month
+FROM station_measurements
+;</sql><sql name="views">DROP VIEW IF EXISTS station_measurements;
 CREATE VIEW station_measurements AS
 SELECT 
 	s.station,
@@ -12,10 +25,47 @@ SELECT
 	s.latitude,
 	s.longitude,
 	s.elevation,
-	m.date,
+	m.date, 
+	strftime('%d',date) as day, 
+	strftime('%m',date) as month,
 	m.prcp,
 	m.tobs as temp
 FROM 
   station s
   LEFT JOIN measurement m
-  ON s.station = m.station;</sql><current_tab id="1"/></tab_sql></sqlb_project>
+  ON s.station = m.station
+  ;
+  select *
+  FROM station_measurements</sql><sql name="temp obv">SELECT *
+FROM station_measurements
+WHERE station = 
+  (SELECT station FROM(
+	SELECT count(station)as cnt, station
+	FROM measurement
+	GROUP BY station
+	ORDER BY count(station) DESC LIMIT 1
+  )
+ )
+ AND date &gt; 
+	(SELECT  DATE(MAX(date), '-1 year') 
+	FROM Measurement) ;</sql><sql name="SQL 4">SELECT min(temp), max(temp), avg(temp)
+FROM station_measurements
+WHERE station = 
+  (SELECT station FROM(
+	SELECT count(station)as cnt, station
+	FROM measurement
+	GROUP BY station
+	ORDER BY count(station) DESC LIMIT 1
+  ));
+  
+SELECT min(temp), max(temp), avg(temp)
+FROM station_measurements
+WHERE date &gt; '&amp;ltstart&gt;';</sql><sql name="SQL 5">SELECT date, station, sum(prcp) as percipitation, latitude, longitude, elevation
+FROM station_measurements
+WHERE date BETWEEN DATE('2017-01-06', '-1 year') and DATE('2017-01-20', '-1 year')
+GROUP BY station
+ORDER BY percipitation DESC;</sql><sql name="SQL 6">SELECT date, min(temp), max(temp), avg(temp)
+        FROM station_measurements
+        WHERE month + '-' + day = '01-01'
+        GROUP BY date
+        ORDER BY date;</sql><current_tab id="1"/></tab_sql></sqlb_project>

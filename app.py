@@ -6,9 +6,6 @@ import pandas as pd
 import json
 from flask import Flask, jsonify
 
-#BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-#db_path = BASE_DIR +  "\Resources\hawaii.sqlite"
-#engine = create_engine(f"sqlite:///{db_path}")
 engine = create_engine(f"sqlite:///Resources/hawaii.sqlite")
 print(engine)
  
