@@ -1,3 +1,7 @@
+/*FOREIGN KEYS
+Based on the above, reconstruct the table schema for employees and departments tables.
+ANSWER:*/
+
 DROP TABLE IF EXISTS departments;
 CREATE TABLE departments (
   id INT NOT NULL,
